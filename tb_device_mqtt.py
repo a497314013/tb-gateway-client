@@ -1,16 +1,4 @@
-# Copyright 2025. ThingsBoard
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 
 import logging
 from copy import deepcopy
@@ -427,20 +415,20 @@ class RateLimit:
     @staticmethod
     def get_rate_limit_by_host(host, rate_limit):
         if rate_limit == "DEFAULT_TELEMETRY_RATE_LIMIT":
-            if "thingsboard.cloud" in host:
+            if "iotplatform.cloud" in host:
                 rate_limit = "10:1,60:60,"
             elif "tb" in host and "cloud" in host:
                 rate_limit = "10:1,60:60,"
-            elif "demo.thingsboard.io" in host:
+            elif "demo.iotplatform.io" in host:
                 rate_limit = "10:1,60:60,"
             else:
                 rate_limit = "0:0,"
         elif rate_limit == "DEFAULT_MESSAGES_RATE_LIMIT":
-            if "thingsboard.cloud" in host:
+            if "iotplatform.cloud" in host:
                 rate_limit = "10:1,60:60,"
             elif "tb" in host and "cloud" in host:
                 rate_limit = "10:1,60:60,"
-            elif "demo.thingsboard.io" in host:
+            elif "demo.iotplatform.io" in host:
                 rate_limit = "10:1,60:60,"
             else:
                 rate_limit = "0:0,"
@@ -452,11 +440,11 @@ class RateLimit:
     @staticmethod
     def get_dp_rate_limit_by_host(host, dp_rate_limit):
         if dp_rate_limit == "DEFAULT_TELEMETRY_DP_RATE_LIMIT":
-            if "thingsboard.cloud" in host:
+            if "iotplatform.cloud" in host:
                 dp_rate_limit = "10:1,300:60,"
             elif "tb" in host and "cloud" in host:
                 dp_rate_limit = "10:1,300:60,"
-            elif "demo.thingsboard.io" in host:
+            elif "demo.iotplatform.io" in host:
                 dp_rate_limit = "10:1,300:60,"
             else:
                 dp_rate_limit = "0:0,"
@@ -467,7 +455,7 @@ class RateLimit:
 
 
 class TBDeviceMqttClient:
-    """ThingsBoard MQTT client. This class provides interface to send data to ThingsBoard and receive data from"""
+    """IOTPlatform MQTT client. This class provides interface to send data to IOTPlatform and receive data from"""
 
     EMPTY_RATE_LIMIT = RateLimit('0:0,', "EMPTY_RATE_LIMIT")
 
@@ -644,7 +632,7 @@ class TBDeviceMqttClient:
 
     def connect(self, callback=None, min_reconnect_delay=1, timeout=120, tls=False, ca_certs=None, cert_file=None,
                 key_file=None, keepalive=120):
-        """Connect to ThingsBoard. The callback will be called when the connection is established."""
+        """Connect to IOTPlatform. The callback will be called when the connection is established."""
         if tls:
             try:
                 self._client.tls_set(ca_certs=ca_certs,
@@ -662,10 +650,10 @@ class TBDeviceMqttClient:
         self.__connect_callback = callback
 
     def disconnect(self):
-        """Disconnect from ThingsBoard."""
+        """Disconnect from IOTPlatform."""
         result = self._client.disconnect()
         log.debug(self._client)
-        log.debug("Disconnecting from ThingsBoard")
+        log.debug("Disconnecting from IOTPlatform")
         self.__is_connected = False
         self._client.loop_stop()
         return result
@@ -839,7 +827,7 @@ class TBDeviceMqttClient:
         self._client.reconnect_delay_set(min_delay, max_delay)
 
     def send_rpc_reply(self, req_id, resp, quality_of_service=None, wait_for_publish=False):
-        """Send RPC reply to ThingsBoard. The response will be sent to the RPC_RESPONSE_TOPIC with the request id."""
+        """Send RPC reply to IOTPlatform. The response will be sent to the RPC_RESPONSE_TOPIC with the request id."""
         quality_of_service = quality_of_service if quality_of_service is not None else self.quality_of_service
         if quality_of_service not in (0, 1):
             log.error("Quality of service (qos) value must be 0 or 1")
@@ -849,7 +837,7 @@ class TBDeviceMqttClient:
             info.get()
 
     def send_rpc_call(self, method, params, callback):
-        """Send RPC call to ThingsBoard. The callback will be called when the response is received."""
+        """Send RPC call to IOTPlatform. The callback will be called when the response is received."""
         with self._lock:
             self.__device_client_rpc_number += 1
             self.__device_client_rpc_dict.update({self.__device_client_rpc_number: callback})
@@ -958,7 +946,7 @@ class TBDeviceMqttClient:
             if self.stopped:
                 return TBPublishInfo(paho.MQTTMessageInfo(None))
             if not disconnected and not self.is_connected():
-                log.warning("Waiting for connection to be established before sending data to ThingsBoard!")
+                log.warning("Waiting for connection to be established before sending data to IOTPlatform!")
                 disconnected = True
                 timeout = max(timeout, 180) + 10
             if int(monotonic()) >= timeout + start_time:
@@ -984,7 +972,7 @@ class TBDeviceMqttClient:
             if limit_reached_check:
                 sleep(.005)
         if waited:
-            log.debug("Rate limit released, sending data to ThingsBoard...")
+            log.debug("Rate limit released, sending data to IOTPlatform...")
 
     def _wait_until_current_queued_messages_processed(self):
         logger = None
@@ -1186,7 +1174,7 @@ class TBDeviceMqttClient:
             if self.stopped:
                 return TBPublishInfo(paho.MQTTMessageInfo(None))
             if monotonic() - waiting_for_connection_message_time > 10.0:
-                log.warning("Waiting for connection to be established before subscribing for data on ThingsBoard!")
+                log.warning("Waiting for connection to be established before subscribing for data on IOTPlatform!")
                 waiting_for_connection_message_time = monotonic()
             sleep(0.01)
 
@@ -1208,7 +1196,7 @@ class TBDeviceMqttClient:
             if self.stopped:
                 return TBPublishInfo(paho.MQTTMessageInfo(None))
             if monotonic() - waiting_for_connection_message_time > 10.0:
-                log.warning("Waiting for connection to be established before sending data to ThingsBoard!")
+                log.warning("Waiting for connection to be established before sending data to IOTPlatform!")
                 waiting_for_connection_message_time = monotonic()
             sleep(0.01)
 
@@ -1216,14 +1204,14 @@ class TBDeviceMqttClient:
                                   device=device, msg_rate_limit=msg_rate_limit, dp_rate_limit=dp_rate_limit)
 
     def send_telemetry(self, telemetry, quality_of_service=None, wait_for_publish=True):
-        """Send telemetry to ThingsBoard. The telemetry can be a single dictionary or a list of dictionaries."""
+        """Send telemetry to IOTPlatform. The telemetry can be a single dictionary or a list of dictionaries."""
         quality_of_service = quality_of_service if quality_of_service is not None else self.quality_of_service
         if not isinstance(telemetry, list) and not (isinstance(telemetry, dict) and telemetry.get("ts") is not None):
             telemetry = [telemetry]
         return self._publish_data(telemetry, TELEMETRY_TOPIC, quality_of_service, wait_for_publish)
 
     def send_attributes(self, attributes, quality_of_service=None, wait_for_publish=True):
-        """Send attributes to ThingsBoard. The attributes can be a single dictionary or a list of dictionaries."""
+        """Send attributes to IOTPlatform. The attributes can be a single dictionary or a list of dictionaries."""
         quality_of_service = quality_of_service if quality_of_service is not None else self.quality_of_service
         return self._publish_data(attributes, ATTRIBUTES_TOPIC, quality_of_service, wait_for_publish)
 
@@ -1258,7 +1246,7 @@ class TBDeviceMqttClient:
             return self.__device_max_sub_id
 
     def request_attributes(self, client_keys=None, shared_keys=None, callback=None):
-        """Request attributes from ThingsBoard. The callback will be called when the response is received."""
+        """Request attributes from IOTPlatform. The callback will be called when the response is received."""
         msg = {}
         if client_keys:
             tmp = ""
@@ -1303,17 +1291,17 @@ class TBDeviceMqttClient:
 
                 if callback is not None:
                     if isinstance(callback, tuple):
-                        callback[0](None, TBTimeoutException("Timeout while waiting for a reply for attribute request from ThingsBoard!"), # noqa
+                        callback[0](None, TBTimeoutException("Timeout while waiting for a reply for attribute request from IOTPlatform!"), # noqa
                                     callback[1])
                     else:
-                        callback(None, TBTimeoutException("Timeout while waiting for a reply for attribute request from ThingsBoard!")) # noqa
+                        callback(None, TBTimeoutException("Timeout while waiting for a reply for attribute request from IOTPlatform!")) # noqa
 
                 self.__attrs_request_timeout.pop(attr_request_number)
 
             sleep(0.1)
 
     def claim(self, secret_key, duration=30000):
-        """Claim the device in Thingsboard. The duration is in milliseconds."""
+        """Claim the device in IOTPlatform. The duration is in milliseconds."""
         claiming_request = {
             "secretKey": secret_key,
             "durationMs": duration
@@ -1365,7 +1353,7 @@ class TBDeviceMqttClient:
                   password=None,
                   hash=None,
                   gateway=None):
-        """Provision the device in ThingsBoard. Returns the credentials for the device."""
+        """Provision the device in IOTPlatform. Returns the credentials for the device."""
         provision_request = {
             "provisionDeviceKey": provision_device_key,
             "provisionDeviceSecret": provision_device_secret
@@ -1612,17 +1600,17 @@ class ProvisionClient(paho.Client):
 
     def __on_connect(self, client, _, __, rc):  # Callback for connect
         if rc == 0:
-            log.info("[Provisioning client] Connected to ThingsBoard ")
+            log.info("[Provisioning client] Connected to IOTPlatform ")
             client.subscribe(self.PROVISION_RESPONSE_TOPIC)  # Subscribe to provisioning response topic
             provision_request = dumps(self.__provision_request, option=OPT_NON_STR_KEYS)
             log.info("[Provisioning client] Sending provisioning request %s" % provision_request)
             client.publish(self.PROVISION_REQUEST_TOPIC, provision_request)  # Publishing provisioning request topic
         else:
-            log.info("[Provisioning client] Cannot connect to ThingsBoard!, result: %s" % RESULT_CODES[rc])
+            log.info("[Provisioning client] Cannot connect to IOTPlatform!, result: %s" % RESULT_CODES[rc])
 
     def __on_message(self, _, __, msg):
         decoded_payload = msg.payload.decode("UTF-8")
-        log.info("[Provisioning client] Received data from ThingsBoard: %s" % decoded_payload)
+        log.info("[Provisioning client] Received data from IOTPlatform: %s" % decoded_payload)
         decoded_message = loads(decoded_payload)
         provision_device_status = decoded_message.get("status")
         if provision_device_status == "SUCCESS":
@@ -1633,7 +1621,7 @@ class ProvisionClient(paho.Client):
         self.disconnect()
 
     def provision(self):
-        log.info("[Provisioning client] Connecting to ThingsBoard")
+        log.info("[Provisioning client] Connecting to IOTPlatform")
         self.__credentials = None
         self.connect(self._host, self._port, 60)
         self.loop_forever()

@@ -1,16 +1,4 @@
-# Copyright 2025. ThingsBoard
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 
 import unittest
 from time import sleep, time
@@ -21,7 +9,7 @@ from tb_gateway_mqtt import TBGatewayMqttClient
 class TBGatewayMqttClientTests(unittest.TestCase):
     """
     Before running tests, do the next steps:
-    1. Create device "Example Name" in ThingsBoard
+    1. Create device "Example Name" in IOTPlatform
     2. Add shared attribute "attr" with value "hello" to created device
     """
 
